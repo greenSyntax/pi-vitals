@@ -7,7 +7,7 @@ Guidance for Claude Code when working in this repo. Keep this file current: upda
 **Pi-Vitals** is a self-hosted dashboard that runs on the Raspberry Pi itself. It monitors CPU, memory, storage, temperature/throttling, open ports and Nginx configuration, and shows them in a web UI with charts.
 
 - Full roadmap: [PLAN.md](PLAN.md) (phased). Work phase by phase and tick the checklists as items land.
-- Current phase: **Phase 0 done; Phase 1 (core collectors) next**. Update this line as phases complete.
+- Current phase: **Phases 0–1 done; Phase 2 (ports and Nginx) next**. Update this line as phases complete.
 
 ## Stack
 
@@ -19,8 +19,8 @@ Guidance for Claude Code when working in this repo. Keep this file current: upda
 ## Layout
 
 ```
-backend/app/        main.py (FastAPI), config.py (env settings); db, scheduler still to come
-backend/app/collectors/   one module per metric group (empty so far)
+backend/app/        main.py (FastAPI routes), config.py (env settings); db, scheduler still to come
+backend/app/collectors/   system.py, health.py, storage.py (each exposes collect()); ports, nginx still to come
 backend/tests/      pytest (pytest.ini sets pythonpath to backend/)
 frontend/           css/, fonts/, icons/, js/ (empty; index.html still to come)
 deploy/             systemd unit, nginx site, sudoers rule, install.sh (empty so far)
@@ -43,7 +43,8 @@ pytest                            # tests
 
 - **Read-only app.** No endpoint may modify Nginx or any system setting. No write endpoints beyond internal DB writes.
 - **Pi-only metrics degrade gracefully.** Temperature, `vcgencmd` throttling etc. return `null` on non-Pi hosts so development on macOS works. Collectors must never raise to the API layer: return an error payload instead.
-- **One collector per module** under `collectors/`, with unit tests that mock `psutil`, sysfs and subprocess output.
+- **One collector per module** under `collectors/`, exposing `collect() -> dict`, with unit tests that mock `psutil`, sysfs and subprocess output. `main.py` wraps each in `_safe()` so one failing collector returns `{"error": ...}` instead of breaking `/api/live`.
+- psutil CPU percent is relative to the previous call: keep the priming call in `system.py` and don't call `cpu_percent` twice per sample.
 - **Protect the SD card.** Batch DB writes, use WAL, honour retention and downsampling. Don't add per-sample writes or verbose disk logging.
 - **Security.** Backend binds to `127.0.0.1` only. Redact secrets in the Nginx config output. Shell out only with fixed argument lists (never `shell=True`, never user input in commands). The only sudo use is the narrow rule for `nginx -t` / `nginx -T`.
 - **Offline-safe frontend.** Vendor JS libs, fonts and icons locally. No CDN or Google calls at runtime.

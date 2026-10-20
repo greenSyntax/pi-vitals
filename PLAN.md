@@ -103,12 +103,12 @@ pi-vitals/
 
 **Goal:** accurate live metrics from the system, each behind its own module.
 
-- [ ] `system.py`: CPU % (total and per core), CPU frequency, load average, memory and swap, uptime
-- [ ] `health.py`: CPU temperature (`/sys/class/thermal/thermal_zone0/temp`), throttling via `vcgencmd get_throttled` (decode bit flags: undervoltage, throttled, freq-capped)
-- [ ] `storage.py`: per-mount usage (skip pseudo filesystems), disk I/O rates
-- [ ] Graceful fallbacks: on non-Pi hosts (the Mac) return `null` for Pi-only values so dev still works
-- [ ] `GET /api/live` aggregating all of the above
-- [ ] Unit tests with mocked `psutil` and sysfs reads
+- [x] `system.py`: CPU % (total and per core), CPU frequency, load average, memory and swap, uptime
+- [x] `health.py`: CPU temperature (`/sys/class/thermal/thermal_zone0/temp`), throttling via `vcgencmd get_throttled` (decode bit flags: undervoltage, throttled, freq-capped)
+- [x] `storage.py`: per-mount usage (skip pseudo filesystems), disk I/O rates
+- [x] Graceful fallbacks: on non-Pi hosts (the Mac) return `null` for Pi-only values so dev still works
+- [x] `GET /api/live` aggregating all of the above
+- [x] Unit tests with mocked `psutil` and sysfs reads
 
 **Done when:** `/api/live` returns a complete JSON snapshot, and tests pass on the Mac and on the Pi.
 

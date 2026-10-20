@@ -2,7 +2,7 @@
 
 A lightweight dashboard that runs on your Raspberry Pi and shows its health at a glance.
 
-> **Status:** early development. Phase 0 (project skeleton) is done; metric collectors are next. See [PLAN.md](PLAN.md) for the roadmap.
+> **Status:** early development. Phases 0–1 (skeleton and core metric collectors) are done; open ports and Nginx inspection are next. See [PLAN.md](PLAN.md) for the roadmap.
 
 ## What it monitors
 
@@ -45,6 +45,15 @@ pytest                             # run tests
 ```
 
 Pi-only metrics (temperature, throttling) show as unavailable when run on a non-Pi machine.
+
+### API
+
+| Endpoint | Returns |
+|---|---|
+| `GET /api/health` | `{"status":"ok"}` liveness check |
+| `GET /api/live` | Snapshot: `system` (CPU, memory, swap, uptime, load), `health` (temperature, throttling flags), `storage` (partitions, disk I/O) |
+
+Try it: `curl http://127.0.0.1:8000/api/live`. Values that can't be read are `null`, and a failing collector returns `{"error": "..."}` for its section only.
 
 ### Configuration
 

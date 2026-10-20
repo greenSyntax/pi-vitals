@@ -1,0 +1,640 @@
+/* ---------- header & nav ---------- */
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.app-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 8px 20px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.brand .icon {
+  width: 24px;
+  height: 24px;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-right: auto;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.tab:hover {
+  background: var(--hover);
+}
+
+.tab[aria-current="page"] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.header-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: transparent;
+}
+
+.icon-btn:hover {
+  background: var(--hover);
+}
+
+.status-badge,
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--sev, var(--line));
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-badge .icon,
+.chip .icon {
+  color: var(--sev-ink, var(--text-muted));
+  width: 16px;
+  height: 16px;
+}
+
+/* --sev colours borders and fills; --sev-ink colours icons (neutral state needs a readable one) */
+[data-sev="ok"] {
+  --sev: var(--mark);
+  --sev-ink: var(--mark);
+}
+[data-sev="warn"] {
+  --sev: var(--warn);
+  --sev-ink: var(--warn);
+}
+[data-sev="danger"] {
+  --sev: var(--danger);
+  --sev-ink: var(--danger);
+}
+[data-sev="na"] {
+  --sev: var(--line);
+  --sev-ink: var(--text-muted);
+}
+
+/* ---------- toolbar (the one filter row) ---------- */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.toolbar .spacer {
+  margin-left: auto;
+}
+
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.seg button {
+  background: transparent;
+  border: 0;
+  padding: 6px 14px;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.seg button + button {
+  border-left: 1px solid var(--line);
+}
+
+.seg button:hover {
+  background: var(--hover);
+}
+
+.seg button[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 500;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: transparent;
+}
+
+.btn:hover {
+  background: var(--hover);
+}
+
+/* ---------- banners ---------- */
+
+.banner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--sev, var(--line));
+}
+
+.banner .icon {
+  color: var(--sev-ink, var(--text-muted));
+  margin-top: 2px;
+}
+
+.banner strong {
+  font-weight: 700;
+}
+
+/* ---------- cards ---------- */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 20px 20px;
+  min-width: 0;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.card-head h2 {
+  font-size: 15px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-head h2 .icon {
+  color: var(--text-muted);
+}
+
+.card-head .now {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.card-head .now strong {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.grid-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.grid-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 16px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 16px;
+}
+
+/* ---------- stat tiles & meters ---------- */
+
+.tile {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tile-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 8px;
+  color: var(--text-muted);
+}
+
+.tile-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.tile-value {
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.tile-value .unit {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+.tile-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.meter {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.meter > span {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 4px;
+  background: var(--sev, var(--mark));
+  transition: width 0.4s ease;
+}
+
+/* ---------- charts ---------- */
+
+.chart-body {
+  position: relative;
+  min-height: 190px;
+  transition: opacity 0.2s;
+}
+
+.chart-body.is-loading {
+  opacity: 0.55;
+}
+
+.chart-body:focus-visible {
+  outline-offset: 4px;
+}
+
+.chart-empty {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  min-height: 190px;
+  color: var(--text-muted);
+  gap: 4px;
+}
+
+.chart-tip {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+  display: none;
+}
+
+.chart-tip .tip-val {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.chart-tip .tip-key {
+  width: 12px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--mark);
+}
+
+.chart-tip .tip-time {
+  color: var(--text-muted);
+}
+
+.u-wrap,
+.uplot {
+  font-family: var(--font);
+}
+
+.scroll-table {
+  max-height: 190px;
+  overflow: auto;
+}
+
+/* ---------- tables ---------- */
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+table.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tbl th,
+.tbl td {
+  padding: 8px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.tbl tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.tbl thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.tbl th button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tbl .num {
+  font-variant-numeric: tabular-nums;
+}
+
+.tbl tbody tr:hover {
+  background: var(--hover);
+}
+
+/* ---------- key/value, bars, lists ---------- */
+
+.kv {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 16px;
+}
+
+.kv dt {
+  color: var(--text-muted);
+}
+
+.kv dd {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.bars {
+  display: grid;
+  gap: 8px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 44px;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.bar-row .label {
+  color: var(--text-muted);
+}
+
+.bar-row .val {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar-row .meter {
+  height: 10px;
+}
+
+.bar-row .meter > span {
+  background: var(--mark);
+}
+
+.part {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+
+.part + .part {
+  margin-top: 16px;
+}
+
+.part-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.part-head strong {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.part-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- ports & nginx ---------- */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.input {
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  min-width: 200px;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.server {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.server + .server {
+  margin-top: 12px;
+}
+
+.server h3 {
+  font-size: 15px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.loc-list {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.loc {
+  display: grid;
+  grid-template-columns: minmax(80px, max-content) 1fr;
+  gap: 4px 12px;
+}
+
+.loc code {
+  overflow-wrap: anywhere;
+}
+
+code,
+pre {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12.5px;
+}
+
+pre.raw {
+  margin: 12px 0 0;
+  padding: 14px 16px;
+  max-height: 480px;
+  overflow: auto;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  white-space: pre;
+}
+
+details > summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] > summary .icon {
+  transform: rotate(180deg);
+}
+
+.empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ---------- misc ---------- */
+
+.icon.flip {
+  transform: rotate(180deg);
+}
+
+/* uPlot defaults to a dashed crosshair; ours is a solid hairline (grid and axes never dash) */
+.u-hz .u-cursor-x,
+.u-vt .u-cursor-y {
+  border-right: 1px solid var(--text-muted);
+}
+
+.u-select {
+  display: none;
+}
+
+main.is-stale > :not(.toolbar) {
+  opacity: 0.55;
+}

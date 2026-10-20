@@ -1,13 +1,18 @@
+import mimetypes
+import os
 import time
 from contextlib import asynccontextmanager
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.staticfiles import StaticFiles
 
 from app import db
 from app.collectors import health, nginx, ports, storage, system
 from app.config import settings
 from app.scheduler import Sampler
+
+mimetypes.add_type("font/woff2", ".woff2")  # missing from older Python mime tables
 
 
 @asynccontextmanager
@@ -82,3 +87,9 @@ def api_history(metric: Optional[str] = None, range_: str = Query("1h", alias="r
         }
 
     return _safe(query)
+
+
+# Dev convenience: serve the dashboard from the same process. In production Nginx serves the
+# static files and proxies /api here. Mounted last so it never shadows an API route.
+if settings.frontend_dir and os.path.isdir(settings.frontend_dir):
+    app.mount("/", StaticFiles(directory=settings.frontend_dir, html=True), name="frontend")

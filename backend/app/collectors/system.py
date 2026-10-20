@@ -2,13 +2,19 @@ import os
 import socket
 import threading
 import time
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import psutil
 
-CPU_MIN_INTERVAL = 1.0
+# CPU usage is computed from deltas of psutil.cpu_times() against ONE global baseline.
+# psutil.cpu_percent() is not used: recent psutil keeps its baseline per thread, so the first call
+# in every new thread (our sampler, each web worker) returns a meaningless 0.0.
+# A window much shorter than ~1 s is also unreliable, so shorter ones are never reported.
+MIN_WINDOW = 1.5
 _cpu_lock = threading.Lock()
-_cpu_cache = (0.0, [])
+_prev_times = psutil.cpu_times(percpu=True)
+_baseline = time.monotonic()
+_cpu_cache: List[float] = []
 
 
 def _cpu_freq() -> Optional[dict]:
@@ -29,24 +35,34 @@ def _load_average() -> Optional[dict]:
     return {"1m": round(one, 2), "5m": round(five, 2), "15m": round(fifteen, 2)}
 
 
-# psutil reports usage since the previous call, and the first call returns 0.0.
-# Prime it at import so the first real sample is meaningful.
-psutil.cpu_percent(interval=None, percpu=True)
+def _busy_and_total(t) -> Tuple[float, float]:
+    # Same accounting as psutil.cpu_percent: guest time is already inside user/nice, and
+    # iowait counts as idle.
+    total = sum(t) - getattr(t, "guest", 0) - getattr(t, "guest_nice", 0)
+    idle = t.idle + getattr(t, "iowait", 0)
+    return total - idle, total
 
 
 def _per_core_percent() -> List[float]:
-    """Per-core usage, shared by the history sampler and /api/live.
+    """Per-core usage since the previous reading, shared by the history sampler and /api/live.
 
-    The baseline psutil measures from is global, so a second caller a few ms after the
-    first would read a near-empty window. Reuse a reading younger than CPU_MIN_INTERVAL.
+    Every caller moves the same baseline, so a call less than MIN_WINDOW after the last one gets
+    the previous reading back instead; before any valid reading exists that is an empty list,
+    which callers report as "no data" rather than a made-up 0%.
     """
-    global _cpu_cache
+    global _cpu_cache, _baseline, _prev_times
     with _cpu_lock:
-        taken, values = _cpu_cache
-        if values and time.monotonic() - taken < CPU_MIN_INTERVAL:
-            return list(values)
-        values = psutil.cpu_percent(interval=None, percpu=True)
-        _cpu_cache = (time.monotonic(), values)
+        now = time.monotonic()
+        if now - _baseline < MIN_WINDOW:
+            return list(_cpu_cache)
+        current = psutil.cpu_times(percpu=True)
+        values = []
+        for old, new in zip(_prev_times, current):
+            busy_old, total_old = _busy_and_total(old)
+            busy_new, total_new = _busy_and_total(new)
+            delta = total_new - total_old
+            values.append(round(max(0.0, min(100.0, (busy_new - busy_old) / delta * 100)), 1) if delta > 0 else 0.0)
+        _prev_times, _baseline, _cpu_cache = current, now, values
         return list(values)
 
 
@@ -58,7 +74,7 @@ def collect() -> dict:
         "hostname": socket.gethostname(),
         "uptime_seconds": int(time.time() - psutil.boot_time()),
         "cpu": {
-            "percent": round(sum(per_core) / len(per_core), 1) if per_core else 0.0,
+            "percent": round(sum(per_core) / len(per_core), 1) if per_core else None,
             "per_core_percent": per_core,
             "cores": psutil.cpu_count(logical=True),
             "freq": _cpu_freq(),

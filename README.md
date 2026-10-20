@@ -2,7 +2,7 @@
 
 A lightweight dashboard that runs on your Raspberry Pi and shows its health at a glance.
 
-> **Status:** early development. Phases 0–3 (skeleton, core metrics, open ports, Nginx inspection, history storage) are done; the dashboard UI is next. The API is complete, but there is no web UI yet. See [PLAN.md](PLAN.md) for the roadmap.
+> **Status:** early development. Phases 0–4 (API, history storage and the web dashboard) are done; deployment on the Pi is next. Everything so far has been developed and tested on macOS, not yet on a Pi. See [PLAN.md](PLAN.md) for the roadmap.
 
 ## What it monitors
 
@@ -13,7 +13,7 @@ A lightweight dashboard that runs on your Raspberry Pi and shows its health at a
 - **Open ports:** listening TCP/UDP sockets with owning process, flagging ports exposed on all interfaces
 - **Nginx:** service status, config validity, parsed server blocks and the effective config
 
-Live gauges plus history charts (up to 7 days) are served in a web UI.
+Live readings plus history charts (up to 7 days) are shown in a web dashboard with three tabs: **Overview** (CPU, memory, temperature and storage tiles, history charts with a table view, per-core bars, throttling alerts), **Ports** and **Nginx**. It has dark and light themes, works on a phone, and needs no internet access (fonts, icons and charts are bundled).
 
 ## How it works
 
@@ -26,7 +26,7 @@ The app is read-only: it never changes Nginx or any system setting. The backend 
 ## Tech
 
 Python + FastAPI + psutil, SQLite, static frontend (no build step), Nginx, `systemd`.
-Design: [Lucide](https://lucide.dev/icons/) icons, Google Sans, [this palette](https://colorhunt.co/palette/09232812544f2a835f8bbb92).
+Design: [Lucide](https://lucide.dev/icons/) icons, Google Sans, [this palette](https://colorhunt.co/palette/09232812544f2a835f8bbb92), charts by [uPlot](https://github.com/leeoniya/uPlot). Bundled third-party files and licences: [frontend/THIRD_PARTY.md](frontend/THIRD_PARTY.md).
 
 ## Requirements
 
@@ -40,7 +40,7 @@ Design: [Lucide](https://lucide.dev/icons/) icons, Google Sans, [this palette](h
 cd backend
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload      # http://127.0.0.1:8000/api/health
+uvicorn app.main:app --reload      # dashboard at http://127.0.0.1:8000/ , API at /api/...
 pytest                             # run tests
 ```
 
@@ -72,6 +72,7 @@ Environment variables (all optional):
 | `PIVITALS_SAMPLE_INTERVAL` | `5` | Seconds between samples |
 | `PIVITALS_FLUSH_INTERVAL` | `30` | Seconds between batched DB writes. Up to this much data can be lost on a crash or power cut; raise it to reduce SD card writes. |
 | `PIVITALS_RETENTION_DAYS` | `7` | History kept |
+| `PIVITALS_FRONTEND_DIR` | `../frontend` | Folder the dev server serves at `/`. Set to empty to serve only the API (production: Nginx serves the files). |
 | `PIVITALS_NGINX_USE_SUDO` | off | Run `nginx -t/-T/-v` via `sudo -n` (needs the sudoers rule from the deploy step). `nginx -T` usually needs root. |
 
 ## Deployment on the Pi

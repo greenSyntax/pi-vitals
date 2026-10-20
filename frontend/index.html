@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="description" content="Health, resource and network dashboard for this Raspberry Pi." />
+    <title>Pi-Vitals</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="vendor/uplot/uPlot.min.css" />
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <script src="js/theme-init.js"></script>
+    <script src="vendor/uplot/uPlot.iife.min.js"></script>
+    <script type="module" src="js/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="app-header">
+      <div class="app-header-inner">
+        <a class="brand" href="#/overview" aria-label="Pi-Vitals home">
+          <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#activity"></use></svg>
+          Pi-Vitals
+        </a>
+        <nav class="tabs" aria-label="Sections" id="tabs"></nav>
+        <div class="header-tools">
+          <span class="status-badge" id="status-badge" data-sev="na" role="status"></span>
+          <button class="icon-btn" id="theme-btn" type="button" aria-label="Switch colour theme"></button>
+        </div>
+      </div>
+    </header>
+    <main id="main" tabindex="-1">
+      <noscript>Pi-Vitals needs JavaScript to draw its charts.</noscript>
+    </main>
+  </body>
+</html>

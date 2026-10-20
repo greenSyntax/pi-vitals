@@ -1,0 +1,75 @@
+/*
+  Design tokens. Every colour in the UI comes from here.
+  Palette: https://colorhunt.co/palette/09232812544f2a835f8bbb92
+    #092328 bg · #12544f surface · #2a835f accent · #8bbb92 accent-soft
+
+  Contrast notes (dark): on --card, --mark is 6.6:1, --accent 3.1:1, --warn 7.1:1, --danger 4.4:1.
+  --accent on --surface is only 1.9:1, so chart lines and meter fills use --mark, not --accent.
+  --accent is for buttons / active states, with --on-accent text (4.7:1).
+*/
+
+:root {
+  --font: "Google Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --radius: 14px;
+  --radius-sm: 8px;
+
+  /* palette */
+  --bg: #092328;
+  --surface: #12544f;
+  --accent: #2a835f;
+  --accent-soft: #8bbb92;
+
+  /* derived: --card is 25% of the way from --bg to --surface */
+  --card: #0b2f32;
+  --on-accent: #ffffff;
+  --text: #eef6ef;
+  --text-muted: #8bbb92;
+  --line: rgba(139, 187, 146, 0.18);
+  --grid: rgba(139, 187, 146, 0.12);
+  --hover: rgba(139, 187, 146, 0.1);
+
+  /* data */
+  --mark: #8bbb92;
+  --mark-wash: rgba(139, 187, 146, 0.1);
+  --track: #12544f;
+  --warn: #e0b04a;
+  --danger: #e5674f;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f2f8f3;
+    --surface: #dcebdf;
+    --card: #ffffff;
+    --text: #092328;
+    --text-muted: #12544f;
+    --line: rgba(18, 84, 79, 0.18);
+    --grid: rgba(18, 84, 79, 0.12);
+    --hover: rgba(18, 84, 79, 0.08);
+    --mark: #12544f;
+    --mark-wash: rgba(18, 84, 79, 0.1);
+    --track: #dcebdf;
+    --warn: #b07d12;
+    --danger: #c0432d;
+    color-scheme: light;
+  }
+}
+
+:root[data-theme="light"] {
+  --bg: #f2f8f3;
+  --surface: #dcebdf;
+  --card: #ffffff;
+  --text: #092328;
+  --text-muted: #12544f;
+  --line: rgba(18, 84, 79, 0.18);
+  --grid: rgba(18, 84, 79, 0.12);
+  --hover: rgba(18, 84, 79, 0.08);
+  --mark: #12544f;
+  --mark-wash: rgba(18, 84, 79, 0.1);
+  --track: #dcebdf;
+  --warn: #b07d12;
+  --danger: #c0432d;
+  color-scheme: light;
+}

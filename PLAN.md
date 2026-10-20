@@ -154,18 +154,19 @@ pi-vitals/
 
 **Goal:** a clear, responsive single-page dashboard (works on phone).
 
-- [ ] Design foundations: `tokens.css` with the palette and status colours, self-hosted Google Sans, Lucide icon sprite
-- [ ] Layout: header (hostname, uptime, status badge) plus card grid
-- [ ] **Overview cards:** CPU gauge, memory gauge, temperature gauge with colour thresholds, storage bars per mount
-- [ ] **Throttling banner** shown when undervoltage or throttling is detected
-- [ ] **History charts:** CPU, memory, temperature with a time-range selector (Chart.js or uPlot)
-- [ ] **Ports tab:** sortable table, red badge for all-interface listeners
-- [ ] **Nginx tab:** status, config test result, server blocks table, collapsible raw config viewer
-- [ ] Live polling every 3–5 s, with pause when the tab is hidden
-- [ ] Dark and light theme from the same tokens, offline-safe (vendor JS libs, fonts and icons locally, no CDN dependency)
-- [ ] Loading, empty and error states for every panel
+- [x] Design foundations: `tokens.css` with the palette and status colours, self-hosted Google Sans, Lucide icon sprite
+- [x] Layout: sticky header (nav tabs, status badge, theme toggle) plus card grid; hostname and uptime live in the System card
+- [x] **Overview cards:** CPU, memory, temperature and storage tiles with meters and colour thresholds, per-core bars, storage per mount
+- [x] **Throttling banner** shown when undervoltage or throttling is detected (red for active problems, amber for "since boot")
+- [x] **History charts:** CPU, memory, temperature, load with a time-range selector (uPlot), hover/keyboard readout and a table view
+- [x] **Ports tab:** sortable, filterable table; amber badge for all-interface listeners (exposed is not automatically wrong, so not red)
+- [x] **Nginx tab:** status, config test result, server blocks, collapsible raw config viewer
+- [x] Live polling every 5 s, paused while the browser tab is hidden; stale data is dimmed when offline
+- [x] Dark and light theme from the same tokens, offline-safe (vendor JS libs, fonts and icons locally, no CDN dependency)
+- [x] Loading, empty and error states for every panel (no skeletons: charts keep their last render, dimmed, while refetching)
 
 **Done when:** all views work against the real API with sensible behaviour on mobile widths.
+Verified on macOS at desktop and 375 px widths, in dark and light, against the real API plus a fixture-backed Nginx and faked throttling. Still to verify on the Pi.
 
 ---
 

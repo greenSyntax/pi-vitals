@@ -1,5 +1,8 @@
 import os
 from dataclasses import dataclass
+from pathlib import Path
+
+DEFAULT_FRONTEND_DIR = str(Path(__file__).resolve().parents[2] / "frontend")
 
 
 @dataclass(frozen=True)
@@ -11,6 +14,7 @@ class Settings:
     flush_interval: int
     retention_days: int
     nginx_use_sudo: bool
+    frontend_dir: str
 
 
 def load_settings() -> Settings:
@@ -22,6 +26,7 @@ def load_settings() -> Settings:
         flush_interval=int(os.getenv("PIVITALS_FLUSH_INTERVAL", "30")),
         retention_days=int(os.getenv("PIVITALS_RETENTION_DAYS", "7")),
         nginx_use_sudo=os.getenv("PIVITALS_NGINX_USE_SUDO", "").lower() in ("1", "true", "yes"),
+        frontend_dir=os.getenv("PIVITALS_FRONTEND_DIR", DEFAULT_FRONTEND_DIR),
     )
 
 

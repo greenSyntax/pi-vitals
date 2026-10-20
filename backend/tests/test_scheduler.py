@@ -123,3 +123,4 @@ def test_collect_sample_survives_collector_failures(monkeypatch):
     sample = scheduler.collect_sample(now=1)
     assert sample["cpu"] is None and sample["temperature"] is None
     assert sample["disk"] is not None
+

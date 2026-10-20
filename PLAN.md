@@ -119,17 +119,17 @@ pi-vitals/
 **Goal:** security-relevant visibility.
 
 **Open ports**
-- [ ] `ports.py`: listening TCP/UDP sockets with port, protocol, bind address and process name/PID
-- [ ] Flag exposure: `0.0.0.0` / `::` (all interfaces) vs `127.0.0.1` (local only)
-- [ ] `GET /api/ports`
+- [x] `ports.py`: listening TCP/UDP sockets with port, protocol, bind address and process name/PID
+- [x] Flag exposure: `0.0.0.0` / `::` (all interfaces) vs `127.0.0.1` (local only)
+- [x] `GET /api/ports`
 
 **Nginx**
-- [ ] `nginx.py`: service status (via systemd), `nginx -t` result, version
-- [ ] Parse effective config (`nginx -T`) into server blocks: `listen`, `server_name`, `root`, `proxy_pass`, SSL on/off, `location` blocks
-- [ ] Return raw config text with secrets and credentials redacted
-- [ ] `GET /api/nginx` (summary and parsed servers) and `GET /api/nginx/raw`
-- [ ] Handle: Nginx not installed, permission denied, invalid config
-- [ ] Tests using sample `nginx -T` fixtures
+- [x] `nginx.py`: service status (via systemd), `nginx -t` result, version
+- [x] Parse effective config (`nginx -T`) into server blocks: `listen`, `server_name`, `root`, `proxy_pass`, SSL on/off, `location` blocks
+- [x] Return raw config text with secrets and credentials redacted
+- [x] `GET /api/nginx` (summary and parsed servers) and `GET /api/nginx/raw`
+- [x] Handle: Nginx not installed, permission denied, invalid config
+- [x] Tests using sample `nginx -T` fixtures
 
 **Done when:** both endpoints return correct data on the Pi, and failure modes return clear error payloads (not 500s).
 

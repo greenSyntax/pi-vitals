@@ -9,6 +9,7 @@ class Settings:
     db_path: str
     sample_interval: int
     retention_days: int
+    nginx_use_sudo: bool
 
 
 def load_settings() -> Settings:
@@ -18,6 +19,7 @@ def load_settings() -> Settings:
         db_path=os.getenv("PIVITALS_DB_PATH", "pivitals.db"),
         sample_interval=int(os.getenv("PIVITALS_SAMPLE_INTERVAL", "5")),
         retention_days=int(os.getenv("PIVITALS_RETENTION_DAYS", "7")),
+        nginx_use_sudo=os.getenv("PIVITALS_NGINX_USE_SUDO", "").lower() in ("1", "true", "yes"),
     )
 
 

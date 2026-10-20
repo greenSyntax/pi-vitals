@@ -7,7 +7,7 @@ Guidance for Claude Code when working in this repo. Keep this file current: upda
 **Pi-Vitals** is a self-hosted dashboard that runs on the Raspberry Pi itself. It monitors CPU, memory, storage, temperature/throttling, open ports and Nginx configuration, and shows them in a web UI with charts.
 
 - Full roadmap: [PLAN.md](PLAN.md) (phased). Work phase by phase and tick the checklists as items land.
-- Current phase: **Phases 0–1 done; Phase 2 (ports and Nginx) next**. Update this line as phases complete.
+- Current phase: **Phases 0–2 done; Phase 3 (SQLite history) next**. Phase 2 is only fixture-tested: verify `/api/ports` and `/api/nginx` on the real Pi. Update this line as phases complete.
 
 ## Stack
 
@@ -20,7 +20,7 @@ Guidance for Claude Code when working in this repo. Keep this file current: upda
 
 ```
 backend/app/        main.py (FastAPI routes), config.py (env settings); db, scheduler still to come
-backend/app/collectors/   system.py, health.py, storage.py (each exposes collect()); ports, nginx still to come
+backend/app/collectors/   system.py, health.py, storage.py, ports.py, nginx.py (each exposes collect())
 backend/tests/      pytest (pytest.ini sets pythonpath to backend/)
 frontend/           css/, fonts/, icons/, js/ (empty; index.html still to come)
 deploy/             systemd unit, nginx site, sudoers rule, install.sh (empty so far)
@@ -44,6 +44,8 @@ pytest                            # tests
 - **Read-only app.** No endpoint may modify Nginx or any system setting. No write endpoints beyond internal DB writes.
 - **Pi-only metrics degrade gracefully.** Temperature, `vcgencmd` throttling etc. return `null` on non-Pi hosts so development on macOS works. Collectors must never raise to the API layer: return an error payload instead.
 - **One collector per module** under `collectors/`, exposing `collect() -> dict`, with unit tests that mock `psutil`, sysfs and subprocess output. `main.py` wraps each in `_safe()` so one failing collector returns `{"error": ...}` instead of breaking `/api/live`.
+- **Nginx collector** (`nginx.py`): own brace-aware parser (tokenize → parse_config), not regexes. One `nginx -T` per 30 s is cached because sudo logs every call. Output is redacted (`redact()`, proxy_pass userinfo) before it leaves the collector; keep new fields that could carry secrets going through it. Sudo is opt-in via `PIVITALS_NGINX_USE_SUDO` and always `sudo -n` with a fixed binary path.
+- **Ports collector** (`ports.py`): on macOS `psutil.net_connections` raises AccessDenied, so it falls back to per-process listing and sets `partial: true`. Same flag on Linux when some PIDs are hidden.
 - psutil CPU percent is relative to the previous call: keep the priming call in `system.py` and don't call `cpu_percent` twice per sample.
 - **Protect the SD card.** Batch DB writes, use WAL, honour retention and downsampling. Don't add per-sample writes or verbose disk logging.
 - **Security.** Backend binds to `127.0.0.1` only. Redact secrets in the Nginx config output. Shell out only with fixed argument lists (never `shell=True`, never user input in commands). The only sudo use is the narrow rule for `nginx -t` / `nginx -T`.

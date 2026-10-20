@@ -78,9 +78,10 @@ Rules: dark-first, with a light theme from the same tokens (`data-theme` on `<ht
 
 ## Maintaining docs
 
-- **README.md** is for humans: what it is, how to run, install and deploy. **CLAUDE.md** is for Claude: conventions, constraints, decisions. **PLAN.md** is the roadmap.
+- **README.md** is for humans: what it is, how to run, install and deploy. **CLAUDE.md** is for Claude: conventions, constraints, decisions. **PLAN.md** is the roadmap. **docs/how-pi-vitals-works.md** explains the architecture for a 10-year-old (kid word + grown-up word for every part, Mermaid diagram).
 - When a change affects commands, layout, endpoints, config/env vars, deployment or design tokens, update the relevant docs **in the same change**.
 - When a phase item is done, tick it in PLAN.md and update "Current phase" above.
+- When components, data flow, security locks, file layout or numbers it quotes (5 s sampling, 30 s flush, 7-day retention, 256 MB cap) change, update `docs/how-pi-vitals-works.md` too, in the same plain style.
 - Don't duplicate content across files: link instead.
 
 ## License

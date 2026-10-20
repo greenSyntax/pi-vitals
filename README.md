@@ -115,6 +115,7 @@ browser → Nginx :8080 (basic auth, static files, security headers) → /api �
 
 ## Project docs
 
+- [docs/how-pi-vitals-works.md](docs/how-pi-vitals-works.md): the system design and architecture, explained simply (with a diagram)
 - [PLAN.md](PLAN.md): phased implementation plan
 - [CLAUDE.md](CLAUDE.md): conventions and guidance for Claude Code
 

@@ -78,8 +78,6 @@ Environment variables (all optional):
 
 ## Deployment on the Pi
 
-Tested statically on a Mac; not yet run on a real Pi (see [PLAN.md](PLAN.md), Phase 5).
-
 **Install** (Raspberry Pi OS / Debian, as a user with `sudo`):
 
 ```bash

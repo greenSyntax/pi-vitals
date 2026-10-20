@@ -1,4 +1,5 @@
 import { h, icon, clear } from "../dom.js";
+import { SEVERITY_ICON, SEVERITY_LABEL } from "../format.js";
 
 const ERRORS = {
   not_installed: ["info", "na", "Nginx is not installed on this device", "Nothing to inspect here."],
@@ -13,8 +14,13 @@ function statusTile(label, iconName, value, sub, sev) {
     "article",
     { class: "tile", "data-sev": sev },
     h("div", { class: "tile-top" }, h("span", { class: "tile-label" }, icon(iconName), label)),
-    h("div", { class: "tile-value", style: "font-size:24px" }, value),
-    h("p", { class: "tile-sub" }, sub || " "),
+    h("div", { class: "tile-value tile-value--word" }, value),
+    h(
+      "div",
+      { class: "tile-foot" },
+      h("p", { class: "tile-sub" }, sub || " "),
+      sev === "na" ? null : h("span", { class: "status", "data-sev": sev }, icon(SEVERITY_ICON[sev]), SEVERITY_LABEL[sev]),
+    ),
   );
 }
 
@@ -97,13 +103,13 @@ export class NginxView {
     if (!data.installed) {
       const [ic, sev, title, body] = ERRORS[data.error] || ["info", "na", data.error, ""];
       this.status.append(statusTile("Nginx", "server", "Not installed", null, "na"));
-      this.problem.append(h("div", { class: "banner", "data-sev": sev }, icon(ic), h("div", null, h("strong", null, title), h("br"), body)));
+      this.problem.append(h("div", { class: "banner", "data-sev": sev }, icon(ic), h("div", null, h("strong", null, title), body)));
       this.servers.append(h("p", { class: "empty" }, "No server blocks to show"));
       return;
     }
     if (data.error && ERRORS[data.error]) {
       const [ic, sev, title, body] = ERRORS[data.error];
-      this.problem.append(h("div", { class: "banner", "data-sev": sev, role: "alert" }, icon(ic), h("div", null, h("strong", null, title), h("br"), body)));
+      this.problem.append(h("div", { class: "banner", "data-sev": sev, role: "alert" }, icon(ic), h("div", null, h("strong", null, title), body)));
     }
 
     const test = data.config_test || {};
@@ -115,7 +121,7 @@ export class NginxView {
 
     if (data.parse_errors?.length) {
       this.problem.append(
-        h("div", { class: "banner", "data-sev": "warn" }, icon("triangle-alert"), h("div", null, h("strong", null, "Some files could not be parsed"), h("br"), data.parse_errors.map((e) => `${e.file}: ${e.error}`).join(" · "))),
+        h("div", { class: "banner", "data-sev": "warn" }, icon("triangle-alert"), h("div", null, h("strong", null, "Some files could not be parsed"), data.parse_errors.map((e) => `${e.file}: ${e.error}`).join(" · "))),
       );
     }
     if (!test.ok && test.output && data.error !== "permission_denied") {

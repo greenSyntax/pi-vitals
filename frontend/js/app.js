@@ -65,7 +65,7 @@ function renderTabs() {
 
 // ---------- toolbar: the one filter row ----------
 
-const updatedEl = h("span", { class: "muted", role: "status" }, "Loading…");
+const updatedEl = h("span", { class: "updated", role: "status" }, "Loading…");
 const rangeSeg = h("div", { class: "seg", role: "group", "aria-label": "Time range" });
 const modeSeg = h("div", { class: "seg", role: "group", "aria-label": "Chart or table view" });
 const refreshBtn = h("button", { class: "btn", type: "button", onClick: () => refreshCurrent(true) }, icon("refresh-cw"), "Refresh");

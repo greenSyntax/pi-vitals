@@ -130,10 +130,15 @@ export class ChartCard {
     const real = ys.filter((v) => v != null);
     const yRange = Y_RANGES[this.cfg.scale](Math.max(...real), Math.min(...real));
 
-    const mark = token("--mark");
+    const mark = token("--data");
     const grid = token("--grid");
-    const muted = token("--text-muted");
+    const muted = token("--text-3");
     const font = '12px "Google Sans", system-ui, sans-serif';
+    // one line per tick: clock time within a day, the date for longer ranges
+    const timeTick = (t) =>
+      until - since > 86400
+        ? new Date(t * 1000).toLocaleDateString([], { month: "short", day: "numeric" })
+        : new Date(t * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     const axisFmt = (v) => `${v.toFixed(this.cfg.axisDecimals)}${this.cfg.unit}`;
 
     const tip = h("div", { class: "chart-tip" }, h("div", { class: "tip-val" }, h("span", { class: "tip-key" }), h("span")), h("div", { class: "tip-time" }));
@@ -147,14 +152,14 @@ export class ChartCard {
       cursor: {
         y: false,
         drag: { x: false, y: false },
-        points: { size: 9, width: 2, fill: mark, stroke: token("--card") },
+        points: { size: 9, width: 2, fill: mark, stroke: token("--surface") },
       },
       scales: { x: { time: true, range: () => [since, until] }, y: { range: () => yRange } },
       axes: [
-        { stroke: muted, font, grid: { stroke: grid, width: 1 }, ticks: { show: false }, space: 80 },
+        { stroke: muted, font, grid: { stroke: grid, width: 1 }, ticks: { show: false }, space: 80, values: (u, vals) => vals.map(timeTick) },
         { stroke: muted, font, size: 46, grid: { stroke: grid, width: 1 }, ticks: { show: false }, values: (u, vals) => vals.map(axisFmt) },
       ],
-      series: [{}, { stroke: mark, width: 2, fill: token("--mark-wash"), points: { show: false }, spanGaps: false }],
+      series: [{}, { stroke: mark, width: 2, fill: token("--data-wash"), points: { show: false }, spanGaps: false }],
       hooks: {
         ready: [(u) => u.over.append(tip)],
         setCursor: [

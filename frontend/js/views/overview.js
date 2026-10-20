@@ -39,8 +39,8 @@ export function overallSeverity(live) {
   return worst;
 }
 
-function chip(sev) {
-  return h("span", { class: "chip", "data-sev": sev }, icon(SEVERITY_ICON[sev]), SEVERITY_LABEL[sev]);
+function status(sev) {
+  return h("span", { class: "status", "data-sev": sev }, icon(SEVERITY_ICON[sev]), SEVERITY_LABEL[sev]);
 }
 
 function makeTile({ label, iconName, metric, unit }) {
@@ -49,17 +49,19 @@ function makeTile({ label, iconName, metric, unit }) {
   const fill = h("span");
   const meter = h("div", { class: "meter", role: "meter", "aria-label": label, "aria-valuemin": "0", "aria-valuemax": "100" }, fill);
   const top = h("div", { class: "tile-top" }, h("span", { class: "tile-label" }, icon(iconName), label));
-  const el = h("article", { class: "tile", "data-sev": "na" }, top, value, meter, sub);
+  const foot = h("div", { class: "tile-foot" }, sub);
+  const el = h("article", { class: "tile", "data-sev": "na" }, top, value, meter, foot);
 
   return {
     el,
     set({ reading, text, subText, meterPct }) {
       const sev = severity(metric, reading);
       el.dataset.sev = sev;
-      el.querySelector(".chip")?.remove();
-      top.append(chip(sev));
+      foot.querySelector(".status")?.remove();
+      foot.append(status(sev));
       append(clear(value), [text ?? "–", reading != null && unit ? h("span", { class: "unit" }, unit) : null]);
       sub.textContent = subText || " ";
+      sub.title = subText || ""; // the footer truncates on narrow tiles
       const pct = meterPct ?? reading;
       fill.style.width = pct == null ? "0" : `${Math.min(100, Math.max(0, pct))}%`;
       if (pct == null) meter.removeAttribute("aria-valuenow");
@@ -128,12 +130,12 @@ export class Overview {
       reading: temp,
       text: temp == null ? null : temp.toFixed(1),
       subText: temp == null ? "Sensor not available on this device" : "CPU core",
-      meterPct: temp == null ? null : (temp / 100) * 100,
+      meterPct: temp, // on a 0-100 °C scale
     });
     this.tiles.disk.set({
       reading: root?.percent ?? null,
       text: root ? root.percent.toFixed(0) : null,
-      subText: root ? `${bytes(root.used)} of ${bytes(root.total)} on ${root.mountpoint}` : live.storage?.error,
+      subText: root ? `${bytes(root.used)} of ${bytes(root.total)}` : live.storage?.error,
     });
 
     this.#renderBanner(live.health?.throttling);
@@ -149,11 +151,11 @@ export class Overview {
     const past = Object.keys(THROTTLE_PAST).filter((k) => t[k]);
     if (now.length) {
       this.banner.append(
-        h("div", { class: "banner", "data-sev": "danger", role: "alert" }, icon("octagon-alert"), h("div", null, h("strong", null, "Power or thermal problem right now"), h("br"), now.map((k) => THROTTLE_NOW[k]).join(" · "))),
+        h("div", { class: "banner", "data-sev": "danger", role: "alert" }, icon("octagon-alert"), h("div", null, h("strong", null, "Power or thermal problem right now"), now.map((k) => THROTTLE_NOW[k]).join(" · "))),
       );
     } else if (past.length) {
       this.banner.append(
-        h("div", { class: "banner", "data-sev": "warn" }, icon("triangle-alert"), h("div", null, h("strong", null, "Problems since boot"), h("br"), `The Pi has seen ${past.map((k) => THROTTLE_PAST[k]).join(", ")}. Check the power supply and cooling.`)),
+        h("div", { class: "banner", "data-sev": "warn" }, icon("triangle-alert"), h("div", null, h("strong", null, "Problems since boot"), `The Pi has seen ${past.map((k) => THROTTLE_PAST[k]).join(", ")}. Check the power supply and cooling.`)),
       );
     }
   }

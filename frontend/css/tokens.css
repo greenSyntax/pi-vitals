@@ -1,75 +1,153 @@
 /*
-  Design tokens. Every colour in the UI comes from here.
-  Palette: https://colorhunt.co/palette/09232812544f2a835f8bbb92
-    #092328 bg · #12544f surface · #2a835f accent · #8bbb92 accent-soft
+  Design tokens: every colour, size and radius in the UI comes from here.
 
-  Contrast notes (dark): on --card, --mark is 6.6:1, --accent 3.1:1, --warn 7.1:1, --danger 4.4:1.
-  --accent on --surface is only 1.9:1, so chart lines and meter fills use --mark, not --accent.
-  --accent is for buttons / active states, with --on-accent text (4.7:1).
+  Palette (Color Hunt 09232812544f2a835f8bbb92):
+    #092328 deep   #12544f teal   #2a835f green   #8bbb92 sage
+  Neutrals are tinted steps between the deep teal and the sage (dark) or white (light),
+  so both themes come from the same four colours.
+
+  Colour roles. Each colour has ONE meaning in both themes:
+    --accent   brand / action: primary buttons, active tab, focus. Never data or status.
+    --data     a measured value: chart lines, meter and bar fills.
+    --warn     "High" status only.     --danger  "Critical" status only.
+    "Normal" status has no colour of its own (neutral ink): calm states stay quiet.
+  Status is always icon + word + colour, never colour alone: green data vs red critical is
+  hard to separate for red-green colour-blind readers (validated: CVD dE ~5).
+
+  Checked contrast (on --surface): text 13.1 / 15.2, text-2 7.0 / 6.6, text-3 5.2 / 5.1 (>= 4.5 on
+  --bg and --surface-2 too: it is used for real reading text, so it must pass as text),
+  data 6.9 / 8.7, warn 7.5+ / 4.6, danger 4.9+ / 5.0 (dark / light). warn vs danger pass
+  colour-blind separation in both themes.
 */
 
 :root {
   --font: "Google Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  --radius: 14px;
-  --radius-sm: 8px;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  /* palette */
+  /* type scale */
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 15px;
+  --fs-lg: 20px;
+  --fs-xl: 32px;
+
+  /* spacing scale */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+
+  --r-lg: 12px;
+  --r-md: 8px;
+  --r-pill: 999px;
+  --control-h: 36px;
+
+  /* dark (default) */
   --bg: #092328;
-  --surface: #12544f;
+  --surface: #0f2a2d;
+  --surface-2: #163233;
+  --border: #23413d;
+  --text: #e8f1ed;
+  --text-2: #a5b3b2;
+  --text-3: #8a9a9a;
+
   --accent: #2a835f;
-  --accent-soft: #8bbb92;
-
-  /* derived: --card is 25% of the way from --bg to --surface */
-  --card: #0b2f32;
+  --accent-hover: #24724f; /* darker, so white text keeps >= 4.5:1 */
   --on-accent: #ffffff;
-  --text: #eef6ef;
-  --text-muted: #8bbb92;
-  --line: rgba(139, 187, 146, 0.18);
-  --grid: rgba(139, 187, 146, 0.12);
-  --hover: rgba(139, 187, 146, 0.1);
+  --focus: #8bbb92;
 
-  /* data */
-  --mark: #8bbb92;
-  --mark-wash: rgba(139, 187, 146, 0.1);
-  --track: #12544f;
-  --warn: #e0b04a;
-  --danger: #e5674f;
+  --data: #8bbb92;
+  --data-wash: rgba(139, 187, 146, 0.12);
+  --grid: rgba(232, 241, 237, 0.07);
+
+  --warn: #e6b450;
+  --warn-wash: rgba(230, 180, 80, 0.1);
+  --danger: #f2627a;
+  --danger-wash: rgba(242, 98, 122, 0.1);
+
+  --hover: rgba(232, 241, 237, 0.05);
+  --shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+  --shadow-pop: 0 4px 14px rgba(0, 0, 0, 0.35);
 
   color-scheme: dark;
 }
 
+/* light: same roles, values from the same palette (kept identical in both blocks below) */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --bg: #f2f8f3;
-    --surface: #dcebdf;
-    --card: #ffffff;
-    --text: #092328;
-    --text-muted: #12544f;
-    --line: rgba(18, 84, 79, 0.18);
-    --grid: rgba(18, 84, 79, 0.12);
-    --hover: rgba(18, 84, 79, 0.08);
-    --mark: #12544f;
-    --mark-wash: rgba(18, 84, 79, 0.1);
-    --track: #dcebdf;
-    --warn: #b07d12;
-    --danger: #c0432d;
+    --bg: #f3f8f4;
+    --surface: #ffffff;
+    --surface-2: #ecf4ee;
+    --border: #d0dddc;
+    --text: #0b2a2f;
+    --text-2: #4a6165;
+    --text-3: #5e7276;
+    --accent: #2a835f;
+    --accent-hover: #24724f;
+    --on-accent: #ffffff;
+    --focus: #2a835f;
+    --data: #12544f;
+    --data-wash: rgba(18, 84, 79, 0.1);
+    --grid: rgba(11, 42, 47, 0.07);
+    --warn: #9a6700;
+    --warn-wash: rgba(154, 103, 0, 0.08);
+    --danger: #d1246b;
+    --danger-wash: rgba(209, 36, 107, 0.07);
+    --hover: rgba(11, 42, 47, 0.04);
+    --shadow: 0 1px 2px rgba(11, 42, 47, 0.06);
+    --shadow-pop: 0 4px 14px rgba(11, 42, 47, 0.12);
     color-scheme: light;
   }
 }
 
 :root[data-theme="light"] {
-  --bg: #f2f8f3;
-  --surface: #dcebdf;
-  --card: #ffffff;
-  --text: #092328;
-  --text-muted: #12544f;
-  --line: rgba(18, 84, 79, 0.18);
-  --grid: rgba(18, 84, 79, 0.12);
-  --hover: rgba(18, 84, 79, 0.08);
-  --mark: #12544f;
-  --mark-wash: rgba(18, 84, 79, 0.1);
-  --track: #dcebdf;
-  --warn: #b07d12;
-  --danger: #c0432d;
+  --bg: #f3f8f4;
+  --surface: #ffffff;
+  --surface-2: #ecf4ee;
+  --border: #d0dddc;
+  --text: #0b2a2f;
+  --text-2: #4a6165;
+  --text-3: #5e7276;
+  --accent: #2a835f;
+  --accent-hover: #24724f;
+  --on-accent: #ffffff;
+  --focus: #2a835f;
+  --data: #12544f;
+  --data-wash: rgba(18, 84, 79, 0.1);
+  --grid: rgba(11, 42, 47, 0.07);
+  --warn: #9a6700;
+  --warn-wash: rgba(154, 103, 0, 0.08);
+  --danger: #d1246b;
+  --danger-wash: rgba(209, 36, 107, 0.07);
+  --hover: rgba(11, 42, 47, 0.04);
+  --shadow: 0 1px 2px rgba(11, 42, 47, 0.06);
+  --shadow-pop: 0 4px 14px rgba(11, 42, 47, 0.12);
   color-scheme: light;
+}
+
+/* status roles: --sev-ink colours the icon, --sev-fill a meter, --sev-line a border or stripe */
+[data-sev="ok"] {
+  --sev-ink: var(--text-2);
+  --sev-fill: var(--data);
+  --sev-line: var(--border);
+  --sev-wash: transparent;
+}
+[data-sev="warn"] {
+  --sev-ink: var(--warn);
+  --sev-fill: var(--warn);
+  --sev-line: var(--warn);
+  --sev-wash: var(--warn-wash);
+}
+[data-sev="danger"] {
+  --sev-ink: var(--danger);
+  --sev-fill: var(--danger);
+  --sev-line: var(--danger);
+  --sev-wash: var(--danger-wash);
+}
+[data-sev="na"] {
+  --sev-ink: var(--text-3);
+  --sev-fill: transparent;
+  --sev-line: var(--border);
+  --sev-wash: transparent;
 }

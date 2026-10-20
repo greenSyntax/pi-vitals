@@ -21,9 +21,10 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
-  font-size: 15px;
+  font-size: var(--fs-md);
   line-height: 1.5;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1,
@@ -51,24 +52,24 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--mark);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--r-md);
 }
 
 .skip-link {
   position: absolute;
-  left: 16px;
+  left: var(--sp-4);
   top: -48px;
   background: var(--accent);
   color: var(--on-accent);
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-md);
   z-index: 20;
 }
 
 .skip-link:focus {
-  top: 8px;
+  top: var(--sp-2);
 }
 
 .sr-only {
@@ -81,8 +82,8 @@ button {
 }
 
 .icon {
-  width: 1.25em;
-  height: 1.25em;
+  width: 18px;
+  height: 18px;
   flex: none;
   fill: none;
   stroke: currentColor;
@@ -93,15 +94,15 @@ button {
 }
 
 .muted {
-  color: var(--text-muted);
+  color: var(--text-2);
 }
 
 main {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 16px 48px;
+  padding: var(--sp-5) var(--sp-4) 48px;
   display: grid;
-  gap: 16px;
+  gap: var(--sp-4);
 }
 
 @media (prefers-reduced-motion: reduce) {

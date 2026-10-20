@@ -1,9 +1,14 @@
 import os
 import socket
+import threading
 import time
-from typing import Optional
+from typing import List, Optional
 
 import psutil
+
+CPU_MIN_INTERVAL = 1.0
+_cpu_lock = threading.Lock()
+_cpu_cache = (0.0, [])
 
 
 def _cpu_freq() -> Optional[dict]:
@@ -29,10 +34,26 @@ def _load_average() -> Optional[dict]:
 psutil.cpu_percent(interval=None, percpu=True)
 
 
+def _per_core_percent() -> List[float]:
+    """Per-core usage, shared by the history sampler and /api/live.
+
+    The baseline psutil measures from is global, so a second caller a few ms after the
+    first would read a near-empty window. Reuse a reading younger than CPU_MIN_INTERVAL.
+    """
+    global _cpu_cache
+    with _cpu_lock:
+        taken, values = _cpu_cache
+        if values and time.monotonic() - taken < CPU_MIN_INTERVAL:
+            return list(values)
+        values = psutil.cpu_percent(interval=None, percpu=True)
+        _cpu_cache = (time.monotonic(), values)
+        return list(values)
+
+
 def collect() -> dict:
     mem = psutil.virtual_memory()
     swap = psutil.swap_memory()
-    per_core = psutil.cpu_percent(interval=None, percpu=True)
+    per_core = _per_core_percent()
     return {
         "hostname": socket.gethostname(),
         "uptime_seconds": int(time.time() - psutil.boot_time()),

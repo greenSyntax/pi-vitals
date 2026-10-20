@@ -18,6 +18,16 @@ def test_live_snapshot_shape():
     assert "throttling" in body["health"]
 
 
+def test_cpu_reads_are_shared_within_a_second(monkeypatch):
+    calls = []
+    monkeypatch.setattr(system, "_cpu_cache", (0.0, []))
+    monkeypatch.setattr(system.psutil, "cpu_percent", lambda **kw: calls.append(1) or [10.0, 30.0])
+    first = system.collect()["cpu"]
+    second = system.collect()["cpu"]
+    assert len(calls) == 1
+    assert first["percent"] == second["percent"] == 20.0
+
+
 def test_failing_collector_is_isolated(monkeypatch):
     def boom():
         raise RuntimeError("nope")

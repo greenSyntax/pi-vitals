@@ -7,7 +7,7 @@ Guidance for Claude Code when working in this repo. Keep this file current: upda
 **Pi-Vitals** is a self-hosted dashboard that runs on the Raspberry Pi itself. It monitors CPU, memory, storage, temperature/throttling, open ports and Nginx configuration, and shows them in a web UI with charts.
 
 - Full roadmap: [PLAN.md](PLAN.md) (phased). Work phase by phase and tick the checklists as items land.
-- Current phase: **Phases 0–2 done; Phase 3 (SQLite history) next**. Phase 2 is only fixture-tested: verify `/api/ports` and `/api/nginx` on the real Pi. Update this line as phases complete.
+- Current phase: **Phases 0–3 done; Phase 4 (dashboard UI) next**. Phases 1–3 have only run on macOS: verify temperature/throttling, `/api/ports`, `/api/nginx` and history DB growth on the real Pi. Update this line as phases complete.
 
 ## Stack
 
@@ -19,7 +19,7 @@ Guidance for Claude Code when working in this repo. Keep this file current: upda
 ## Layout
 
 ```
-backend/app/        main.py (FastAPI routes), config.py (env settings); db, scheduler still to come
+backend/app/        main.py (FastAPI routes + lifespan), config.py (env settings), db.py (SQLite), scheduler.py (Sampler thread)
 backend/app/collectors/   system.py, health.py, storage.py, ports.py, nginx.py (each exposes collect())
 backend/tests/      pytest (pytest.ini sets pythonpath to backend/)
 frontend/           css/, fonts/, icons/, js/ (empty; index.html still to come)
@@ -46,7 +46,8 @@ pytest                            # tests
 - **One collector per module** under `collectors/`, exposing `collect() -> dict`, with unit tests that mock `psutil`, sysfs and subprocess output. `main.py` wraps each in `_safe()` so one failing collector returns `{"error": ...}` instead of breaking `/api/live`.
 - **Nginx collector** (`nginx.py`): own brace-aware parser (tokenize → parse_config), not regexes. One `nginx -T` per 30 s is cached because sudo logs every call. Output is redacted (`redact()`, proxy_pass userinfo) before it leaves the collector; keep new fields that could carry secrets going through it. Sudo is opt-in via `PIVITALS_NGINX_USE_SUDO` and always `sudo -n` with a fixed binary path.
 - **Ports collector** (`ports.py`): on macOS `psutil.net_connections` raises AccessDenied, so it falls back to per-process listing and sets `partial: true`. Same flag on Linux when some PIDs are hidden.
-- psutil CPU percent is relative to the previous call: keep the priming call in `system.py` and don't call `cpu_percent` twice per sample.
+- psutil CPU percent is relative to the previous call, and that baseline is global: keep the priming call in `system.py`, and read CPU only through `_per_core_percent()` (it reuses a reading younger than 1 s so the history sampler and `/api/live` don't shrink each other's window). Don't call `psutil.cpu_percent` elsewhere.
+- **History** (`db.py`, `scheduler.py`): a daemon `Sampler` thread (started in the FastAPI lifespan) samples every `PIVITALS_SAMPLE_INTERVAL` s into an in-memory buffer and flushes in one transaction every `PIVITALS_FLUSH_INTERVAL` s (and on shutdown). Hourly `db.maintain()` rolls raw rows older than 24 h into `metrics_1m` (1-min averages) and purges past retention. SQLite is WAL + `synchronous=NORMAL`. Each db function opens its own short-lived connection. API metric names map to columns via the `db.METRICS` whitelist: never put request input into SQL. Adding a metric means a new column in `COLUMNS` (existing DBs need a migration, since the schema is `CREATE TABLE IF NOT EXISTS`) plus `collect_sample`.
 - **Protect the SD card.** Batch DB writes, use WAL, honour retention and downsampling. Don't add per-sample writes or verbose disk logging.
 - **Security.** Backend binds to `127.0.0.1` only. Redact secrets in the Nginx config output. Shell out only with fixed argument lists (never `shell=True`, never user input in commands). The only sudo use is the narrow rule for `nginx -t` / `nginx -T`.
 - **Offline-safe frontend.** Vendor JS libs, fonts and icons locally. No CDN or Google calls at runtime.

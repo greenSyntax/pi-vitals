@@ -1,10 +1,26 @@
 import time
+from contextlib import asynccontextmanager
+from typing import Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Query
 
+from app import db
 from app.collectors import health, nginx, ports, storage, system
+from app.config import settings
+from app.scheduler import Sampler
 
-app = FastAPI(title="Pi-Vitals", docs_url=None, redoc_url=None)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    sampler = Sampler(
+        settings.db_path, settings.sample_interval, settings.flush_interval, settings.retention_days
+    )
+    sampler.start()
+    yield
+    sampler.stop()
+
+
+app = FastAPI(title="Pi-Vitals", docs_url=None, redoc_url=None, lifespan=lifespan)
 
 
 def _safe(collect) -> dict:
@@ -43,3 +59,26 @@ def api_nginx() -> dict:
 @app.get("/api/nginx/raw")
 def api_nginx_raw() -> dict:
     return _safe(nginx.collect_raw)
+
+
+@app.get("/api/history")
+def api_history(metric: Optional[str] = None, range_: str = Query("1h", alias="range")) -> dict:
+    names = metric.split(",") if metric else list(db.METRICS)
+    unknown = [n for n in names if n not in db.METRICS]
+    if unknown:
+        raise HTTPException(400, f"unknown metric(s): {', '.join(unknown)}; valid: {', '.join(db.METRICS)}")
+    if range_ not in db.RANGES:
+        raise HTTPException(400, f"invalid range; valid: {', '.join(db.RANGES)}")
+
+    seconds = db.RANGES[range_]
+    now = int(time.time())
+
+    def query() -> dict:
+        return {
+            "range": range_,
+            "bucket_seconds": db.bucket_seconds(seconds),
+            "since": now - seconds,
+            "series": db.query_history(settings.db_path, names, seconds, now),
+        }
+
+    return _safe(query)

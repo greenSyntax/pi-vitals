@@ -139,12 +139,12 @@ pi-vitals/
 
 **Goal:** charts over time without wearing out the SD card.
 
-- [ ] SQLite schema: `metrics(ts, cpu, mem, temp, disk_root, load1, ...)`
-- [ ] Background sampler (every 5 s) started with the app lifespan
-- [ ] Batch writes (for example flush every 30 s) and use WAL mode to reduce SD writes
-- [ ] Retention job: keep raw data for 24 h, downsample to 1-min averages for 7 days, purge the rest
-- [ ] `GET /api/history?metric=cpu&range=1h|6h|24h|7d` returning downsampled points
-- [ ] Tests for downsampling and retention
+- [x] SQLite schema: `metrics(ts, cpu, mem, temp, disk_root, load1, ...)`
+- [x] Background sampler (every 5 s) started with the app lifespan
+- [x] Batch writes (for example flush every 30 s) and use WAL mode to reduce SD writes
+- [x] Retention job (hourly): keep raw data for 24 h, downsample to 1-min averages for 7 days, purge the rest
+- [x] `GET /api/history?metric=cpu&range=1h|6h|24h|7d` returning downsampled points
+- [x] Tests for downsampling and retention
 
 **Done when:** history survives restarts, DB size stays bounded, and range queries return in under 100 ms.
 

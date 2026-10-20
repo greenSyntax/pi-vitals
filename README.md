@@ -4,8 +4,6 @@ A lightweight dashboard that runs on your Raspberry Pi and shows its health at a
 
 ![Pi Vitals dashboard in dark mode on a Raspberry Pi: CPU, memory, temperature and storage tiles above one-hour charts of CPU, memory, temperature and load](showcase.png)
 
-> **Status:** early development. Phases 0–5 (API, history, dashboard and the Pi installer) are written; the installer has not yet been run on a real Pi, so treat the first install as a test run. Hardening and a soak test come next. See [PLAN.md](PLAN.md) for the roadmap.
-
 ## What it monitors
 
 - **Health:** CPU temperature, throttling and undervoltage flags, uptime, load

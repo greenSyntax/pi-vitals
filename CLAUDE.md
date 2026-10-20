@@ -59,22 +59,32 @@ pytest                            # tests
 
 ## Design system
 
-- Icons: [Lucide](https://lucide.dev/icons/) via `icons/sprite.svg` (`<use>`), 1.25em, 1.75 stroke, `currentColor`
+- Icons: [Lucide](https://lucide.dev/icons/) via `icons/sprite.svg` (`<use>`), 18px (16 in controls), 1.75 stroke, `currentColor`
 - Font: Google Sans, self-hosted `woff2`, with a system-font fallback
-- Palette: [Color Hunt](https://colorhunt.co/palette/09232812544f2a835f8bbb92)
+- Palette: [Color Hunt](https://colorhunt.co/palette/09232812544f2a835f8bbb92) `#092328` deep · `#12544f` teal · `#2a835f` green · `#8bbb92` sage. Neutrals are tinted steps between deep and sage (dark) or white (light), so both themes come from these four colours.
+- All tokens live in `frontend/css/tokens.css` (colours, type scale `--fs-*`, spacing `--sp-*`, radii `--r-*`, `--control-h`). No colour, size or radius literals elsewhere; `grep` for hex/rgb outside tokens.css should find nothing.
 
-| Token | Hex | Use |
-|---|---|---|
-| `--bg` | `#092328` | Page background |
-| `--surface` | `#12544f` | Header, table heads, meter tracks, raised elements |
-| `--card` | `#0b2f32` | Cards and tiles (derived: 25% from `--bg` toward `--surface`) |
-| `--accent` | `#2a835f` | Buttons and active states only (`--on-accent` text) |
-| `--accent-soft` | `#8bbb92` | Muted text, icons, borders (dark theme) |
-| `--mark` | `#8bbb92` dark / `#12544f` light | Chart lines, meter fills, bars |
-| `--warn` | `#e0b04a` | Near-threshold (added, not in palette) |
-| `--danger` | `#e5674f` | Over threshold / exposed / invalid (added, not in palette) |
+Each colour has ONE meaning, the same in both themes:
 
-Rules: dark-first, with a light theme from the same tokens (`data-theme` on `<html>`, falls back to the OS setting); never rely on colour alone (status = icon + label + colour); define colours only as tokens in `frontend/css/tokens.css`. Measured contrast: `--accent` is only 1.9:1 on `--surface`, so it is never used for text or data marks; data marks use `--mark` (6.6:1 on `--card`). Chart rules (from the dataviz guidance): one series per chart, no dual axes, 2px lines, hairline solid grid, 10% area wash, solid crosshair, value-first tooltip, direct "Latest" value in the card header instead of a legend box. Warn/danger thresholds live in `js/format.js`.
+| Role | Token | Dark | Light | Used for |
+|---|---|---|---|---|
+| Action | `--accent` | `#2a835f` | `#2a835f` | Brand mark, primary actions, active tab underline. Never data or status. |
+| Data | `--data` (+ `--data-wash`) | `#8bbb92` | `#12544f` | Chart lines, meter and bar fills |
+| Warning | `--warn` (+ `--warn-wash`) | `#e6b450` | `#9a6700` | "High" status only |
+| Critical | `--danger` (+ `--danger-wash`) | `#f2627a` | `#d1246b` | "Critical" status only |
+| Normal | (none) | neutral ink | neutral ink | Calm states stay uncoloured |
+| Surfaces | `--bg`, `--surface`, `--surface-2`, `--border` | tinted deep teal | white / tinted | Page, cards, raised parts (table heads, meter tracks, active segment) |
+| Text | `--text`, `--text-2`, `--text-3` | | | Primary, secondary, tertiary. All three are >= 4.5:1 on every surface: they are used for real reading text. |
+
+Status is applied with `data-sev="ok|warn|danger|na"`, which sets `--sev-ink` (icon), `--sev-fill` (meter), `--sev-line` (border/stripe), `--sev-wash` (tint). Show status as `.status` (icon + word, in tiles and tables) or `.status-badge` / `.chip` (pills); never colour alone.
+
+Rules and why:
+- Dark-first, light from the same tokens (`data-theme` on `<html>`, falls back to the OS setting). Both light blocks in tokens.css must stay identical.
+- Only one solid-accent element per view (the brand mark). Selected segments are neutral (`--surface-2`), the active tab is an underline, so nothing competes.
+- Status pairs were checked with the dataviz validator: warn vs danger pass colour-blind separation in both themes. Data green vs critical red does not (deutan dE ~5) and cannot while data is the brand green, which is why status always carries an icon and a word.
+- Verified 2026-10-21 with an in-browser audit of every visible text node on all three tabs in both themes: 0 failures, minimum 5.2:1 dark / 4.7:1 light. Re-run that kind of check after colour changes.
+- Tiles are grids with `grid-template-columns: minmax(0, 1fr)`; an `auto` column grows to the width of nowrap text and pushes content out (this bit twice).
+- Chart rules (from the dataviz guidance): one series per chart, no dual axes, 2px lines, hairline solid grid, 10% area wash, solid crosshair, value-first tooltip, single-line time ticks, direct "Latest" value in the card header instead of a legend box. Warn/danger thresholds live in `js/format.js`.
 
 ## Maintaining docs
 

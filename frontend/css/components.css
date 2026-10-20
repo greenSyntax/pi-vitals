@@ -1,130 +1,197 @@
+/*
+  Component styles. Colours only through tokens (tokens.css); colour meaning:
+  --accent = action, --data = measurement, --warn / --danger = status, neutral ink = normal.
+*/
+
 /* ---------- header & nav ---------- */
 
 .app-header {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
 }
 
 .app-header-inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px;
-  min-height: 56px;
+  padding: 0 var(--sp-4);
+  min-height: 60px;
   display: flex;
   align-items: center;
-  gap: 8px 20px;
+  gap: var(--sp-2) var(--sp-5);
   flex-wrap: wrap;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 17px;
   letter-spacing: -0.01em;
   text-decoration: none;
 }
 
 .brand .icon {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
+  padding: 6px;
+  border-radius: var(--r-md);
+  background: var(--accent);
+  color: var(--on-accent);
+  stroke-width: 2.25;
 }
 
 .tabs {
   display: flex;
-  gap: 4px;
+  gap: var(--sp-1);
   margin-right: auto;
+  align-self: stretch;
 }
 
 .tab {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: var(--radius-sm);
+  gap: var(--sp-2);
+  padding: 0 var(--sp-3);
+  min-height: 60px;
   text-decoration: none;
   font-weight: 500;
-  color: var(--text);
+  color: var(--text-2);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
 }
 
 .tab:hover {
-  background: var(--hover);
+  color: var(--text);
 }
 
 .tab[aria-current="page"] {
-  background: var(--accent);
-  color: var(--on-accent);
+  color: var(--text);
+  border-bottom-color: var(--accent);
 }
 
 .header-tools {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
+}
+
+/* phones: brand + tools on one row, tabs on a second, compact row (the header is sticky,
+   so every pixel of it is taken from the content) */
+@media (max-width: 640px) {
+  .app-header-inner {
+    min-height: 0;
+    padding-top: 10px;
+    column-gap: var(--sp-3);
+  }
+
+  .header-tools {
+    margin-left: auto;
+  }
+
+  .tabs {
+    order: 3;
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .tab {
+    min-height: 44px;
+    flex: 1;
+    justify-content: center;
+  }
 }
 
 .icon-btn {
   display: inline-grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--line);
-  background: transparent;
+  width: var(--control-h);
+  height: var(--control-h);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
 }
 
 .icon-btn:hover {
-  background: var(--hover);
+  color: var(--text);
+  background: var(--surface-2);
 }
 
-.status-badge,
-.chip {
+/* the header's overall status: a pill tinted by severity */
+.status-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 10px 2px 8px;
-  border-radius: 999px;
-  border: 1px solid var(--sev, var(--line));
-  font-size: 13px;
+  height: 30px;
+  padding: 0 var(--sp-3) 0 10px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--sev-line, var(--border));
+  background: var(--sev-wash, transparent);
+  font-size: var(--fs-sm);
   font-weight: 500;
   white-space: nowrap;
 }
 
-.status-badge .icon,
-.chip .icon {
-  color: var(--sev-ink, var(--text-muted));
+.status-badge .icon {
   width: 16px;
   height: 16px;
+  color: var(--sev-ink, var(--text-3));
 }
 
-/* --sev colours borders and fills; --sev-ink colours icons (neutral state needs a readable one) */
-[data-sev="ok"] {
-  --sev: var(--mark);
-  --sev-ink: var(--mark);
-}
-[data-sev="warn"] {
-  --sev: var(--warn);
-  --sev-ink: var(--warn);
-}
-[data-sev="danger"] {
-  --sev: var(--danger);
-  --sev-ink: var(--danger);
-}
-[data-sev="na"] {
-  --sev: var(--line);
-  --sev-ink: var(--text-muted);
+/* ---------- status: icon + word, used inside tiles, tables, cards ---------- */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-2);
+  white-space: nowrap;
 }
 
-/* ---------- toolbar (the one filter row) ---------- */
+.status .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--sev-ink, var(--text-3));
+}
+
+.status[data-sev="warn"],
+.status[data-sev="danger"] {
+  color: var(--text);
+}
+
+/* a pill for tags: listen addresses, exposure, context */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px 0 8px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--sev-line, var(--border));
+  background: var(--sev-wash, transparent);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+
+.chip .icon {
+  width: 15px;
+  height: 15px;
+  color: var(--sev-ink, var(--text-3));
+}
+
+/* ---------- toolbar: the one filter row ---------- */
 
 .toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 16px;
+  gap: var(--sp-2) var(--sp-3);
 }
 
 .toolbar .spacer {
@@ -133,182 +200,243 @@
 
 .seg {
   display: inline-flex;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
 }
 
 .seg button {
   background: transparent;
   border: 0;
-  padding: 6px 14px;
-  min-height: 34px;
+  border-radius: 6px;
+  padding: 0 var(--sp-3);
+  height: 28px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-}
-
-.seg button + button {
-  border-left: 1px solid var(--line);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  font-weight: 500;
 }
 
 .seg button:hover {
-  background: var(--hover);
+  color: var(--text);
 }
 
 .seg button[aria-pressed="true"] {
-  background: var(--accent);
-  color: var(--on-accent);
-  font-weight: 500;
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.seg .icon {
+  width: 16px;
+  height: 16px;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 34px;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--line);
-  background: transparent;
+  height: var(--control-h);
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 500;
 }
 
 .btn:hover {
-  background: var(--hover);
+  background: var(--surface-2);
+}
+
+.btn .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-2);
+}
+
+.updated {
+  font-size: var(--fs-sm);
+  color: var(--text-3);
 }
 
 /* ---------- banners ---------- */
 
 .banner {
   display: flex;
-  gap: 12px;
+  gap: var(--sp-3);
   align-items: flex-start;
-  padding: 12px 16px;
-  border-radius: var(--radius);
-  background: var(--card);
-  border: 1px solid var(--sev, var(--line));
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-lg);
+  background: var(--sev-wash, var(--surface));
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--sev-line, var(--border));
+  font-size: var(--fs-sm);
+  color: var(--text-2);
 }
 
 .banner .icon {
-  color: var(--sev-ink, var(--text-muted));
-  margin-top: 2px;
+  color: var(--sev-ink, var(--text-3));
+  margin-top: 1px;
 }
 
 .banner strong {
-  font-weight: 700;
+  display: block;
+  font-size: var(--fs-md);
+  font-weight: 500;
+  color: var(--text);
 }
 
 /* ---------- cards ---------- */
 
 .card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 16px 20px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  padding: var(--sp-4) 20px 20px;
   min-width: 0;
 }
 
 .card-head {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: var(--sp-2);
+  min-height: 28px;
+  margin-bottom: var(--sp-3);
 }
 
 .card-head h2 {
-  font-size: 15px;
+  font-size: var(--fs-md);
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
 .card-head h2 .icon {
-  color: var(--text-muted);
+  color: var(--text-3);
 }
 
 .card-head .now {
   margin-left: auto;
-  font-size: 13px;
-  color: var(--text-muted);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
 }
 
 .card-head .now strong {
   color: var(--text);
-  font-size: 18px;
+  font-size: var(--fs-lg);
   font-weight: 700;
-  margin-left: 4px;
 }
 
 .grid-tiles {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
+  gap: var(--sp-4);
 }
 
 .grid-charts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
-  gap: 16px;
+  gap: var(--sp-4);
 }
 
 .grid-3 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-  gap: 16px;
+  gap: var(--sp-4);
 }
 
 /* ---------- stat tiles & meters ---------- */
 
 .tile {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  padding: var(--sp-4) 20px;
   display: grid;
-  gap: 8px;
+  /* minmax(0, 1fr): an auto column would grow to the full width of a nowrap footer and push
+     the status out of the tile */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  align-content: start;
   min-width: 0;
 }
 
 .tile-top {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px 8px;
-  color: var(--text-muted);
+  gap: var(--sp-2);
+  color: var(--text-2);
 }
 
 .tile-label {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
   font-weight: 500;
 }
 
+.tile-label .icon {
+  color: var(--text-3);
+}
+
 .tile-value {
-  font-size: 34px;
+  font-size: var(--fs-xl);
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.02em;
 }
 
+.tile-value--word {
+  font-size: 24px;
+  letter-spacing: -0.01em;
+}
+
 .tile-value .unit {
-  font-size: 18px;
+  font-size: var(--fs-md);
   font-weight: 500;
-  color: var(--text-muted);
-  margin-left: 2px;
+  color: var(--text-3);
+  margin-left: 3px;
+}
+
+.tile-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  min-height: 20px;
 }
 
 .tile-sub {
-  font-size: 13px;
-  color: var(--text-muted);
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tile-foot .status {
+  flex: none;
 }
 
 .meter {
-  height: 8px;
-  border-radius: 4px;
-  background: var(--track);
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-2);
   overflow: hidden;
 }
 
@@ -316,8 +444,8 @@
   display: block;
   height: 100%;
   width: 0;
-  border-radius: 4px;
-  background: var(--sev, var(--mark));
+  border-radius: 3px;
+  background: var(--sev-fill, var(--data));
   transition: width 0.4s ease;
 }
 
@@ -339,22 +467,24 @@
 
 .chart-empty {
   display: grid;
-  place-items: center;
+  place-content: center;
   text-align: center;
   min-height: 190px;
-  color: var(--text-muted);
-  gap: 4px;
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+  gap: var(--sp-1);
 }
 
 .chart-tip {
   position: absolute;
   z-index: 5;
   pointer-events: none;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-pop);
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   white-space: nowrap;
   display: none;
 }
@@ -363,7 +493,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 15px;
+  font-size: var(--fs-md);
   font-weight: 700;
 }
 
@@ -371,16 +501,26 @@
   width: 12px;
   height: 2px;
   border-radius: 1px;
-  background: var(--mark);
+  background: var(--data);
 }
 
 .chart-tip .tip-time {
-  color: var(--text-muted);
+  color: var(--text-3);
 }
 
 .u-wrap,
 .uplot {
   font-family: var(--font);
+}
+
+/* uPlot defaults to a dashed crosshair; ours is a solid hairline (grids and axes never dash) */
+.u-hz .u-cursor-x,
+.u-vt .u-cursor-y {
+  border-right: 1px solid var(--text-3);
+}
+
+.u-select {
+  display: none;
 }
 
 .scroll-table {
@@ -392,8 +532,8 @@
 
 .table-wrap {
   overflow-x: auto;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
 }
 
 table.tbl {
@@ -404,9 +544,9 @@ table.tbl {
 
 .tbl th,
 .tbl td {
-  padding: 8px 14px;
+  padding: 9px 14px;
   text-align: left;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
 
@@ -417,9 +557,10 @@ table.tbl {
 .tbl thead th {
   position: sticky;
   top: 0;
-  background: var(--surface);
+  background: var(--surface-2);
+  color: var(--text-2);
   font-weight: 500;
-  font-size: 13px;
+  font-size: var(--fs-xs);
 }
 
 .tbl th button {
@@ -427,9 +568,19 @@ table.tbl {
   border: 0;
   padding: 0;
   font-weight: 500;
+  color: inherit;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--sp-1);
+}
+
+.tbl th button:hover {
+  color: var(--text);
+}
+
+.tbl th .icon {
+  width: 14px;
+  height: 14px;
 }
 
 .tbl .num {
@@ -445,11 +596,12 @@ table.tbl {
 .kv {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 8px 16px;
+  gap: 10px var(--sp-4);
+  font-size: 14px;
 }
 
 .kv dt {
-  color: var(--text-muted);
+  color: var(--text-3);
 }
 
 .kv dd {
@@ -460,19 +612,19 @@ table.tbl {
 
 .bars {
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .bar-row {
   display: grid;
-  grid-template-columns: 56px 1fr 44px;
-  gap: 10px;
+  grid-template-columns: 52px 1fr 40px;
+  gap: var(--sp-3);
   align-items: center;
-  font-size: 13px;
+  font-size: var(--fs-sm);
 }
 
 .bar-row .label {
-  color: var(--text-muted);
+  color: var(--text-3);
 }
 
 .bar-row .val {
@@ -480,12 +632,8 @@ table.tbl {
   font-variant-numeric: tabular-nums;
 }
 
-.bar-row .meter {
-  height: 10px;
-}
-
 .bar-row .meter > span {
-  background: var(--mark);
+  background: var(--data);
 }
 
 .part {
@@ -495,14 +643,15 @@ table.tbl {
 }
 
 .part + .part {
-  margin-top: 16px;
+  margin-top: var(--sp-4);
 }
 
 .part-head {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--sp-2);
   flex-wrap: wrap;
+  font-size: 14px;
 }
 
 .part-head strong {
@@ -511,8 +660,8 @@ table.tbl {
 }
 
 .part-sub {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
   overflow-wrap: anywhere;
 }
 
@@ -521,38 +670,39 @@ table.tbl {
 .filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 12px;
+  gap: var(--sp-2) var(--sp-3);
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: var(--sp-3);
 }
 
 .input {
-  min-height: 34px;
-  padding: 6px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  min-width: 200px;
+  height: var(--control-h);
+  padding: 0 var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  min-width: 220px;
+  font-size: 14px;
 }
 
 .input::placeholder {
-  color: var(--text-muted);
+  color: var(--text-3);
 }
 
 .server {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px var(--sp-4);
   display: grid;
   gap: 10px;
 }
 
 .server + .server {
-  margin-top: 12px;
+  margin-top: var(--sp-3);
 }
 
 .server h3 {
-  font-size: 15px;
+  font-size: var(--fs-md);
   font-weight: 700;
   overflow-wrap: anywhere;
 }
@@ -565,14 +715,16 @@ table.tbl {
 
 .loc-list {
   display: grid;
-  gap: 4px;
-  font-size: 13px;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--border);
 }
 
 .loc {
   display: grid;
   grid-template-columns: minmax(80px, max-content) 1fr;
-  gap: 4px 12px;
+  gap: var(--sp-1) var(--sp-3);
 }
 
 .loc code {
@@ -581,58 +733,54 @@ table.tbl {
 
 code,
 pre {
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-family: var(--mono);
   font-size: 12.5px;
 }
 
 pre.raw {
-  margin: 12px 0 0;
-  padding: 14px 16px;
+  margin: var(--sp-3) 0 0;
+  padding: 14px var(--sp-4);
   max-height: 480px;
   overflow: auto;
   background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
   white-space: pre;
+  color: var(--text-2);
 }
 
 details > summary {
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
   font-weight: 500;
   list-style: none;
+}
+
+details > summary .icon {
+  color: var(--text-3);
 }
 
 details > summary::-webkit-details-marker {
   display: none;
 }
 
-details[open] > summary .icon {
+details[open] > summary .icon:last-child {
   transform: rotate(180deg);
 }
 
 .empty {
-  padding: 24px;
+  padding: var(--sp-5);
   text-align: center;
-  color: var(--text-muted);
+  color: var(--text-3);
+  font-size: 14px;
 }
 
 /* ---------- misc ---------- */
 
 .icon.flip {
   transform: rotate(180deg);
-}
-
-/* uPlot defaults to a dashed crosshair; ours is a solid hairline (grid and axes never dash) */
-.u-hz .u-cursor-x,
-.u-vt .u-cursor-y {
-  border-right: 1px solid var(--text-muted);
-}
-
-.u-select {
-  display: none;
 }
 
 main.is-stale > :not(.toolbar) {

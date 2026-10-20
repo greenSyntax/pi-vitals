@@ -21,7 +21,12 @@ function summaryTile(label, iconName, value, sub, sev) {
     { class: "tile", "data-sev": sev || "na" },
     h("div", { class: "tile-top" }, h("span", { class: "tile-label" }, icon(iconName), label)),
     h("div", { class: "tile-value" }, String(value)),
-    h("p", { class: "tile-sub" }, sub),
+    h(
+      "div",
+      { class: "tile-foot" },
+      h("p", { class: "tile-sub" }, sub),
+      sev === "warn" ? h("span", { class: "status", "data-sev": "warn" }, icon("triangle-alert"), "Review") : null,
+    ),
   );
 }
 
@@ -72,7 +77,7 @@ export class PortsView {
     clear(this.summary);
     clear(this.note);
     if (data.error) {
-      this.note.append(h("div", { class: "banner", "data-sev": "danger", role: "alert" }, icon("octagon-alert"), h("div", null, h("strong", null, "Could not read ports"), h("br"), data.error)));
+      this.note.append(h("div", { class: "banner", "data-sev": "danger", role: "alert" }, icon("octagon-alert"), h("div", null, h("strong", null, "Could not read ports"), data.error)));
       clear(this.tableHost);
       return;
     }
@@ -84,7 +89,7 @@ export class PortsView {
     );
     if (data.partial) {
       this.note.append(
-        h("div", { class: "banner", "data-sev": "warn" }, icon("info"), h("div", null, h("strong", null, "Partial view"), h("br"), "Some processes are hidden by permissions, so their names and PIDs are missing.")),
+        h("div", { class: "banner", "data-sev": "warn" }, icon("info"), h("div", null, h("strong", null, "Partial view"), "Some processes are hidden by permissions, so their names and PIDs are missing.")),
       );
     }
     this.#renderTable();

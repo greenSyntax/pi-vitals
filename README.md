@@ -2,7 +2,7 @@
 
 A lightweight dashboard that runs on your Raspberry Pi and shows its health at a glance.
 
-> **Status:** early development. Phases 0–4 (API, history storage and the web dashboard) are done; deployment on the Pi is next. Everything so far has been developed and tested on macOS, not yet on a Pi. See [PLAN.md](PLAN.md) for the roadmap.
+> **Status:** early development. Phases 0–5 (API, history, dashboard and the Pi installer) are written; the installer has not yet been run on a real Pi, so treat the first install as a test run. Hardening and a soak test come next. See [PLAN.md](PLAN.md) for the roadmap.
 
 ## What it monitors
 
@@ -39,7 +39,7 @@ Design: [Lucide](https://lucide.dev/icons/) icons, Google Sans, [this palette](h
 ```bash
 cd backend
 python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt     # runtime deps + pytest
 uvicorn app.main:app --reload      # dashboard at http://127.0.0.1:8000/ , API at /api/...
 pytest                             # run tests
 ```
@@ -73,11 +73,45 @@ Environment variables (all optional):
 | `PIVITALS_FLUSH_INTERVAL` | `30` | Seconds between batched DB writes. Up to this much data can be lost on a crash or power cut; raise it to reduce SD card writes. |
 | `PIVITALS_RETENTION_DAYS` | `7` | History kept |
 | `PIVITALS_FRONTEND_DIR` | `../frontend` | Folder the dev server serves at `/`. Set to empty to serve only the API (production: Nginx serves the files). |
+| `PIVITALS_NGINX_BIN` | auto-detected | Pin the `nginx` binary path. The installer sets it to the path the sudoers rule allows. |
 | `PIVITALS_NGINX_USE_SUDO` | off | Run `nginx -t/-T/-v` via `sudo -n` (needs the sudoers rule from the deploy step). `nginx -T` usually needs root. |
 
 ## Deployment on the Pi
 
-_Coming in Phase 5._ A single `deploy/install.sh` will set up the `systemd` service, the Nginx site with basic auth, and a low-privilege service user. The dashboard is intended for LAN access only.
+Tested statically on a Mac; not yet run on a real Pi (see [PLAN.md](PLAN.md), Phase 5).
+
+**Install** (Raspberry Pi OS / Debian, as a user with `sudo`):
+
+```bash
+git clone <this repo> pi-vitals && cd pi-vitals
+sudo ./deploy/install.sh
+```
+
+It asks you to choose a dashboard password, then installs Nginx and `python3-venv` if missing, copies the app to `/opt/pi-vitals`, creates a `pivitals` service user, installs the `systemd` service, a narrow sudoers rule and the Nginx site, and prints the URL. By default the dashboard is at `http://<pi>:8080/` (port 8080 so it never collides with your own sites on 80/443).
+
+| Option | Meaning |
+|---|---|
+| `--port N` | Dashboard port (default 8080) |
+| `--bind ADDR` | Bind address, e.g. the Pi's LAN IP to avoid listening on other interfaces |
+| `--auth-user NAME` | Login name (default `admin`) |
+| `--set-password` | Change the password on a re-run |
+| `--process-names` | Let the Ports tab name processes owned by other users. This grants the service `CAP_SYS_PTRACE`, a powerful capability that allows inspecting any process, so it is off by default. |
+
+**Upgrade:** `git pull && sudo ./deploy/install.sh` keeps your login and history. **Remove:** `sudo ./deploy/uninstall.sh` (add `--purge` to delete the history and the service user too). It never touches your other Nginx sites.
+
+**How it is wired**
+
+```
+browser → Nginx :8080 (basic auth, static files, security headers) → /api → uvicorn 127.0.0.1:8000 → SQLite in /var/lib/pi-vitals
+```
+
+- The API runs as the unprivileged `pivitals` user and listens on localhost only. It can run exactly `sudo nginx -T` and `sudo nginx -v` (see `deploy/sudoers-pi-vitals`), which is how it reads the Nginx config.
+- Settings can be overridden in `/etc/default/pi-vitals` (one `PIVITALS_...=value` per line, then `sudo systemctl restart pi-vitals`).
+- Logs: `journalctl -u pi-vitals`. Status: `systemctl status pi-vitals`.
+
+**Security notes**
+- The login uses HTTP basic auth over plain HTTP, so the password crosses your network unencrypted. Keep it on a trusted LAN or behind a VPN such as Tailscale, and do not forward the port to the internet. HTTPS is on the backlog (Phase 7).
+- The dashboard shows open ports and your Nginx config (secrets are redacted). Treat access to it as sensitive.
 
 ## Project docs
 

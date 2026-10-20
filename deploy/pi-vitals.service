@@ -1,0 +1,54 @@
+# Pi Vitals API. Installed to /etc/systemd/system/pi-vitals.service by deploy/install.sh,
+# which fills in the marked placeholders.
+[Unit]
+Description=Pi Vitals monitoring API
+After=network.target
+
+[Service]
+Type=simple
+User=@USER@
+Group=@USER@
+# vcgencmd (throttling flags) needs /dev/vcio, which is group "video" on Raspberry Pi OS
+SupplementaryGroups=video
+WorkingDirectory=@PREFIX@/backend
+
+# Defaults; override any of these in /etc/default/pi-vitals (see README)
+Environment=PIVITALS_HOST=127.0.0.1
+Environment=PIVITALS_PORT=8000
+Environment=PIVITALS_DB_PATH=/var/lib/pi-vitals/pivitals.db
+# Nginx serves the static files in production, so the API doesn't
+Environment=PIVITALS_FRONTEND_DIR=
+# nginx -T needs root: the app runs it through the narrow rule in /etc/sudoers.d/pi-vitals
+Environment=PIVITALS_NGINX_USE_SUDO=1
+# Same path as in the sudoers rule, so the two can never disagree
+Environment=PIVITALS_NGINX_BIN=@NGINX_BIN@
+EnvironmentFile=-/etc/default/pi-vitals
+
+# --no-access-log: the dashboard polls every few seconds, and a journal line per request
+# would keep writing to the SD card
+ExecStart=@PREFIX@/venv/bin/uvicorn app.main:app --host ${PIVITALS_HOST} --port ${PIVITALS_PORT} --no-access-log --log-level warning
+Restart=always
+RestartSec=3
+Nice=5
+MemoryMax=256M
+
+# Creates /var/lib/pi-vitals owned by the service user (the SQLite history lives here)
+StateDirectory=pi-vitals
+StateDirectoryMode=0750
+
+# Hardening. Deliberately NOT set, because they would break features:
+#   NoNewPrivileges, RestrictSUIDSGID, CapabilityBoundingSet  -> break `sudo nginx -T`
+#   PrivateDevices                                            -> breaks vcgencmd (/dev/vcio)
+#   ProtectProc=invisible / hidepid                           -> hides process names for open ports
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

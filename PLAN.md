@@ -174,14 +174,16 @@ Verified on macOS at desktop and 375 px widths, in dark and light, against the r
 
 **Goal:** one-command install, starts on boot.
 
-- [ ] Dedicated system user `pivitals` (no login shell), added to groups needed for read access
-- [ ] `pi-vitals.service` (systemd): runs uvicorn on `127.0.0.1:8000`, `Restart=always`, hardening options (`NoNewPrivileges`, `ProtectSystem=strict`, `ReadWritePaths` for the DB dir only)
-- [ ] `sudoers-pi-vitals`: allow only `nginx -T` and `nginx -t` without a password
-- [ ] `nginx-pi-vitals.conf`: serve `frontend/` statically, proxy `/api` to the backend, basic auth, security headers
-- [ ] `install.sh`: install deps, create the venv, htpasswd prompt, install the unit and Nginx site, `nginx -t`, reload, enable and start the service
-- [ ] Deploy flow documented: `rsync` or `git pull` over SSH, then restart
+- [x] Dedicated system user `pivitals` (no login shell); the unit adds the `video` group so `vcgencmd` works
+- [x] `pi-vitals.service` (systemd): uvicorn on `127.0.0.1:8000`, `Restart=always`, `StateDirectory`, memory cap, `--no-access-log` (SD card), hardening (`ProtectSystem=full`, `ProtectHome`, `PrivateTmp` and more). `NoNewPrivileges`, `PrivateDevices` and capability limits are deliberately left off because they would break `sudo nginx -T`, `vcgencmd` and process names.
+- [x] `sudoers-pi-vitals`: allow exactly `nginx -T` and `nginx -v` (the two commands the app runs) without a password, checked with `visudo -cf` before install
+- [x] `nginx-pi-vitals.conf`: serve `frontend/` statically, proxy `/api` to the backend, basic auth, security headers incl. CSP, read-only methods, rate limit
+- [x] `install.sh` (+ `uninstall.sh`): install deps, create the venv, password prompt, install the unit, sudoers and Nginx site, `nginx -t` with rollback, reload, enable and start. Re-runnable for upgrades.
+- [x] Deploy flow documented in the README: `git pull && sudo ./deploy/install.sh`
+- [x] Optional `--process-names` (grants `CAP_SYS_PTRACE`) so the Ports tab can name other users' processes
 
-**Done when:** a reboot of the Pi brings the dashboard back at `http://pi.local` behind the login prompt.
+**Done when:** a reboot of the Pi brings the dashboard back at `http://pi.local:8080` behind the login prompt.
+**Not yet verified:** nothing here has been run on a Pi. Checked so far: template rendering, `bash -n`, `visudo -cf`, the Nginx config parsed with the project's own parser, and the real CSP against the UI in a browser. Still to do on the Pi: the install itself, `nginx -t` on the real config, the sudo rule, `vcgencmd` access, and the reboot test.
 
 ---
 

@@ -267,3 +267,14 @@ def test_endpoints(monkeypatch):
     assert client.get("/api/nginx").json()["servers"][0]["server_names"] == ["_"]
     assert "raw" in client.get("/api/nginx/raw").json()
     assert "listeners" in client.get("/api/ports").json()
+
+
+def test_pinned_binary_path(monkeypatch, tmp_path):
+    fake = tmp_path / "nginx"
+    fake.write_text("#!/bin/sh\n")
+    fake.chmod(0o755)
+    monkeypatch.setattr(nginx, "settings", dataclasses.replace(nginx.settings, nginx_bin=str(fake)))
+    assert nginx._find_binary() == str(fake)
+
+    monkeypatch.setattr(nginx, "settings", dataclasses.replace(nginx.settings, nginx_bin=str(tmp_path / "missing")))
+    assert nginx._find_binary() is None  # pinned but absent: don't silently fall back to another binary

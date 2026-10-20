@@ -205,6 +205,8 @@ def redact(text: str) -> str:
 # --- running nginx ---------------------------------------------------------
 
 def _find_binary() -> Optional[str]:
+    if settings.nginx_bin:  # pinned, so it matches the path the sudoers rule allows
+        return settings.nginx_bin if os.access(settings.nginx_bin, os.X_OK) else None
     found = shutil.which("nginx")
     if found:
         return found

@@ -1,0 +1,5 @@
+# Installed to /etc/sudoers.d/pi-vitals (mode 0440) by deploy/install.sh after `visudo -cf`.
+#
+# Lets the service user run exactly two read-only Nginx commands as root, with these exact
+# arguments and nothing else: `nginx -T` (dump and test the effective config) and `nginx -v`.
+@USER@ ALL=(root) NOPASSWD: @NGINX_BIN@ -T, @NGINX_BIN@ -v

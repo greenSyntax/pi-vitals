@@ -169,7 +169,7 @@ function route() {
   chartControls.hidden = state.tab !== "overview";
   chartControls.style.display = state.tab === "overview" ? "contents" : "none";
   clear(main).append(toolbar, views[state.tab].el);
-  document.title = `${TABS.find(([t]) => t === state.tab)[1]} · Pi-Vitals`;
+  document.title = `${TABS.find(([t]) => t === state.tab)[1]} · Pi Vitals`;
   if (state.tab === "overview") refreshHistory();
   else if (state.tab === "ports") refreshPorts();
   else refreshNginx();

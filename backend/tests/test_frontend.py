@@ -8,7 +8,7 @@ client = TestClient(main.app)
 def test_index_is_served():
     response = client.get("/")
     assert response.status_code == 200
-    assert "Pi-Vitals" in response.text
+    assert "Pi Vitals" in response.text
     assert response.headers["content-type"].startswith("text/html")
 
 

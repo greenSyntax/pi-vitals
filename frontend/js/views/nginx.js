@@ -2,7 +2,7 @@ import { h, icon, clear } from "../dom.js";
 
 const ERRORS = {
   not_installed: ["info", "na", "Nginx is not installed on this device", "Nothing to inspect here."],
-  permission_denied: ["octagon-alert", "danger", "Pi-Vitals is not allowed to read the Nginx config", "Run the deploy script, which installs a narrow sudo rule, and set PIVITALS_NGINX_USE_SUDO=1."],
+  permission_denied: ["octagon-alert", "danger", "Pi Vitals is not allowed to read the Nginx config", "Run the deploy script, which installs a narrow sudo rule, and set PIVITALS_NGINX_USE_SUDO=1."],
   sudo_not_permitted: ["octagon-alert", "danger", "The sudo rule for Nginx is missing", "Install deploy/sudoers-pi-vitals, or unset PIVITALS_NGINX_USE_SUDO."],
   timeout: ["triangle-alert", "warn", "Nginx took too long to answer", "The config could not be read in time."],
   exec_failed: ["octagon-alert", "danger", "Could not run Nginx", "The binary exists but failed to start."],

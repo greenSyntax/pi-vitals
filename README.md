@@ -1,0 +1,72 @@
+# Pi-Vitals
+
+A lightweight dashboard that runs on your Raspberry Pi and shows its health at a glance.
+
+> **Status:** early development. Phase 0 (project skeleton) is done; metric collectors are next. See [PLAN.md](PLAN.md) for the roadmap.
+
+## What it monitors
+
+- **Health:** CPU temperature, throttling and undervoltage flags, uptime, load
+- **CPU:** total and per-core usage, frequency
+- **Memory:** RAM and swap
+- **Storage:** usage per mount, disk I/O
+- **Open ports:** listening TCP/UDP sockets with owning process, flagging ports exposed on all interfaces
+- **Nginx:** service status, config validity, parsed server blocks and the effective config
+
+Live gauges plus history charts (up to 7 days) are served in a web UI.
+
+## How it works
+
+```
+Collector (psutil) → SQLite → FastAPI (127.0.0.1:8000) → Nginx (basic auth) → Browser
+```
+
+The app is read-only: it never changes Nginx or any system setting. The backend listens only on localhost, and Nginx serves the dashboard and proxies `/api`.
+
+## Tech
+
+Python + FastAPI + psutil, SQLite, static frontend (no build step), Nginx, `systemd`.
+Design: [Lucide](https://lucide.dev/icons/) icons, Google Sans, [this palette](https://colorhunt.co/palette/09232812544f2a835f8bbb92).
+
+## Requirements
+
+- Raspberry Pi running Raspberry Pi OS (or another Debian-based OS)
+- Python 3.9+
+- Nginx
+
+## Development
+
+```bash
+cd backend
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload      # http://127.0.0.1:8000/api/health
+pytest                             # run tests
+```
+
+Pi-only metrics (temperature, throttling) show as unavailable when run on a non-Pi machine.
+
+### Configuration
+
+Environment variables (all optional):
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `PIVITALS_HOST` | `127.0.0.1` | Bind address |
+| `PIVITALS_PORT` | `8000` | Bind port |
+| `PIVITALS_DB_PATH` | `pivitals.db` | SQLite file |
+| `PIVITALS_SAMPLE_INTERVAL` | `5` | Seconds between samples |
+| `PIVITALS_RETENTION_DAYS` | `7` | History kept |
+
+## Deployment on the Pi
+
+_Coming in Phase 5._ A single `deploy/install.sh` will set up the `systemd` service, the Nginx site with basic auth, and a low-privilege service user. The dashboard is intended for LAN access only.
+
+## Project docs
+
+- [PLAN.md](PLAN.md): phased implementation plan
+- [CLAUDE.md](CLAUDE.md): conventions and guidance for Claude Code
+
+## License
+
+[MIT](LICENSE)
